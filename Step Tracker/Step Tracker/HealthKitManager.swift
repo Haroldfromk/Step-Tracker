@@ -15,6 +15,9 @@ import Observation
     
     let types: Set = [HKQuantityType(.stepCount), HKQuantityType(.bodyMass)]
     
+    var stepData: [HealthMetric] = []
+    var weightData: [HealthMetric] = []
+    
     func addSimulatorData() async {
         var mockSamples: [HKQuantitySample] = []
         
@@ -62,7 +65,9 @@ import Observation
         )
         
         let stepsCounts = try! await stepsQuery.result(for: store)
-
+        stepData = stepsCounts.statistics().map({
+            .init(date: $0.startDate, value: $0.sumQuantity()?.doubleValue(for: .count()) ?? 0)
+        })
     }
     
     func fetchWeights() async {
@@ -73,7 +78,7 @@ import Observation
         
         let queryPredicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate)
         let samplePredicate = HKSamplePredicate.quantitySample(type: HKQuantityType(.bodyMass), predicate: queryPredicate)
-        
+
         let weightQuery = HKStatisticsCollectionQueryDescriptor(predicate: samplePredicate,
                                                                options: .mostRecent,
                                                                anchorDate: endDate,
@@ -81,7 +86,9 @@ import Observation
         )
         
         let weights = try! await weightQuery.result(for: store)
-
+        weightData = weights.statistics().map({
+            .init(date: $0.startDate, value: $0.mostRecentQuantity()?.doubleValue(for: .pound()) ?? 0)
+        })
     }
     
     //    func fetchStepCountDummy() async {

@@ -59,7 +59,7 @@ struct StepPieChartView: View {
                             VStack {
                                 Text(selectedWeekday.date.weekdayTitle)
                                     .font(.title3.bold())
-                                    .contentTransition(.identity)
+                                    .animation(nil)
                                 
                                 Text(selectedWeekday.value, format: .number.precision(.fractionLength(0)))
                                     .fontWeight(.medium)
@@ -78,8 +78,8 @@ struct StepPieChartView: View {
                 .fill(Color(.secondarySystemBackground))
         )
         .onChange(of: rawSelectedChartValue) { oldValue, newValue in // new
-
-            //print(newValue)
+//            print(chartData)
+//            print(newValue)
             print(selectedWeekday?.date.weekdayTitle)
         }
 
@@ -88,5 +88,5 @@ struct StepPieChartView: View {
 }
 
 #Preview {
-    StepPieChartView(chartData: ChartMath.averageWeekdayCount(for: HealthMetric.mockData))
+    StepPieChartView(chartData: ChartMath.averageWeekdayCount(for: MockData.steps))
 }

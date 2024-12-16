@@ -31,26 +31,12 @@ struct StepBarChartView: View {
     }
     
     var body: some View {
-        VStack {
-            NavigationLink(value: selectedStat) {
-                HStack {
-                    VStack(alignment: .leading) {
-                        Label("Steps", systemImage: "figure.walk")
-                            .font(.title3.bold())
-                            .foregroundStyle(.pink)
-                        
-                        Text("Avg: \(Int(averageStepCount)) steps")
-                            .font(.caption)
-                    }
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                }
-            }
-            .foregroundStyle(.secondary)
-            .padding(.bottom, 12)
-            
+        ChartContainer(title: "Steps",
+                       symbol: "figure.walk",
+                       subtitle: "Avg: \(Int(averageStepCount)) steps",
+                       context: .steps,
+                       isNav: true
+        ) {
             if chartData.isEmpty {
                 ChartEmptyView(systemImageName: "chart.bar", title: "No Data", description: "There is no step count data from the Health App.")
             } else {
@@ -79,10 +65,6 @@ struct StepBarChartView: View {
                 }
                 .frame(height: 150)
                 .chartXSelection(value: $rawSelectedDate.animation(.easeInOut))
-                
-                //                        .onChange(of: rawSelectedDate, { oldValue, newValue in
-                //                            print(newValue)
-                //                        })
                 .chartXAxis {
                     AxisMarks {
                         AxisValueLabel(format: .dateTime.month(.defaultDigits).day())
@@ -98,9 +80,13 @@ struct StepBarChartView: View {
                 }
             }
         }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
-
+        .sensoryFeedback(.impact(flexibility: .solid, intensity: 10), trigger: selectedDay)
+        .onChange(of: rawSelectedDate) { oldValue, newValue in
+            if oldValue?.weekdayInt != newValue?.weekdayInt {
+                selectedDay = newValue
+            }
+        }
+        
     }
     
     var annotationView: some View {
@@ -118,12 +104,6 @@ struct StepBarChartView: View {
             RoundedRectangle(cornerRadius: 4)
                 .fill(Color(.secondarySystemBackground))
                 .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
-        }
-        .sensoryFeedback(.impact(flexibility: .solid, intensity: 10), trigger: selectedDay)
-        .onChange(of: rawSelectedDate) { oldValue, newValue in
-            if oldValue?.weekdayInt != newValue?.weekdayInt {
-                selectedDay = newValue
-            }
         }
     }
     

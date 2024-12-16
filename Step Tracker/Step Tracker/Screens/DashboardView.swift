@@ -51,7 +51,6 @@ struct DashboardView: View {
                         WeightLineChartView(selectedStat: selectedStat, chartData: hkManager.weightData)
                         WeightDiffBarChartView(chartData: ChartMath.averageDailyWeightDiffs(for: hkManager.weightDiffData))
                     }
-                    
                 }
             }
             .padding()

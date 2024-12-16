@@ -12,7 +12,6 @@ struct WeightDiffBarChartView: View {
     
     @State private var rawSelectedDate: Date?
     
-    var selectedStat: HealthMetricContext
     var chartData: [WeekdayChartData]
     
     var selectedData: WeekdayChartData? {
@@ -24,19 +23,17 @@ struct WeightDiffBarChartView: View {
     
     var body: some View {
         VStack {
-            NavigationLink(value: selectedStat) {
-                HStack {
-                    VStack(alignment: .leading) {
-                        Label("Steps", systemImage: "figure")
-                            .font(.title3.bold())
-                            .foregroundStyle(.indigo)
-                        
-                        Text("Per Weekday (Last 28 Days)")
-                            .font(.caption)
-                    }
+            HStack {
+                VStack(alignment: .leading) {
+                    Label("Steps", systemImage: "figure")
+                        .font(.title3.bold())
+                        .foregroundStyle(.indigo)
                     
-                    Spacer()
+                    Text("Per Weekday (Last 28 Days)")
+                        .font(.caption)
                 }
+                
+                Spacer()
             }
             .foregroundStyle(.secondary)
             .padding(.bottom, 12)
@@ -82,11 +79,11 @@ struct WeightDiffBarChartView: View {
     
     var annotationView: some View {
         VStack(alignment: .leading) {
-            Text(selectedData?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
+            Text(selectedData?.date ?? .now, format: .dateTime.weekday(.wide))
                 .font(.footnote.bold())
                 .foregroundStyle(.secondary)
             
-            Text(selectedData?.value ?? 0, format: .number.precision(.fractionLength(2)))
+            Text(selectedData?.value ?? 0, format: .number.sign(strategy: .always()).precision(.fractionLength(2)))
                 .fontWeight(.heavy)
                 .foregroundStyle((selectedData?.value ?? 0) > 0 ? Color.indigo : Color.mint)
         }
@@ -102,5 +99,5 @@ struct WeightDiffBarChartView: View {
 }
 
 #Preview {
-    WeightDiffBarChartView(selectedStat: .weight, chartData: MockData.weightDiffs)
+    WeightDiffBarChartView(chartData: MockData.weightDiffs)
 }

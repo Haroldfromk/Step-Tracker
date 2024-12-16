@@ -13,13 +13,10 @@ struct WeightDiffBarChartView: View {
     @State private var rawSelectedDate: Date?
     @State private var selectedDay: Date?
     
-    var chartData: [WeekdayChartData]
+    var chartData: [DateValueChartData]
     
-    var selectedData: WeekdayChartData? {
-        guard let rawSelectedDate else { return nil }
-        return chartData.first {
-            Calendar.current.isDate(rawSelectedDate, inSameDayAs: $0.date)
-        }
+    var selectedData: DateValueChartData? {
+        ChartHelper.parseSelectedData(from: chartData, in: rawSelectedDate)
     }
     
     var body: some View {
@@ -40,7 +37,7 @@ struct WeightDiffBarChartView: View {
                             .annotation(position: .top,
                                         spacing: 0,
                                         overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
-                                annotationView
+                                ChartAnnotationView(data: selectedData, context: .weight)
                             }
                     }
                     
@@ -76,23 +73,23 @@ struct WeightDiffBarChartView: View {
         }
     }
     
-    var annotationView: some View {
-        VStack(alignment: .leading) {
-            Text(selectedData?.date ?? .now, format: .dateTime.weekday(.wide))
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
-            
-            Text(selectedData?.value ?? 0, format: .number.sign(strategy: .always()).precision(.fractionLength(2)))
-                .fontWeight(.heavy)
-                .foregroundStyle((selectedData?.value ?? 0) > 0 ? Color.indigo : Color.mint)
-        }
-        .padding(12)
-        .background {
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
-        }
-    }
+//    var annotationView: some View {
+//        VStack(alignment: .leading) {
+//            Text(selectedData?.date ?? .now, format: .dateTime.weekday(.wide))
+//                .font(.footnote.bold())
+//                .foregroundStyle(.secondary)
+//            
+//            Text(selectedData?.value ?? 0, format: .number.sign(strategy: .always()).precision(.fractionLength(2)))
+//                .fontWeight(.heavy)
+//                .foregroundStyle((selectedData?.value ?? 0) > 0 ? Color.indigo : Color.mint)
+//        }
+//        .padding(12)
+//        .background {
+//            RoundedRectangle(cornerRadius: 4)
+//                .fill(Color(.secondarySystemBackground))
+//                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
+//        }
+//    }
     
     
 }

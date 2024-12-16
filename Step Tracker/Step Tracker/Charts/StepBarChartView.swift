@@ -13,27 +13,16 @@ struct StepBarChartView: View {
     @State private var rawSelectedDate: Date?
     @State private var selectedDay: Date?
     
-    var selectedStat: HealthMetricContext
-    var chartData: [HealthMetric]
+    var chartData: [DateValueChartData]
     
-    var averageStepCount: Double {
-        guard !chartData.isEmpty else { return 0 }
-        let totalSteps = chartData.reduce(0) { $0 + $1.value }
-        return totalSteps/Double(chartData.count)
-    }
-    
-    var selectedHealthMetric: HealthMetric? {
-        guard let rawSelectedDate else { return nil }
-        let selectedMetric = chartData.first {
-            Calendar.current.isDate(rawSelectedDate, inSameDayAs: $0.date)
-        }
-        return selectedMetric
+    var selectedData: DateValueChartData? {
+        ChartHelper.parseSelectedData(from: chartData, in: rawSelectedDate)
     }
     
     var body: some View {
         ChartContainer(title: "Steps",
                        symbol: "figure.walk",
-                       subtitle: "Avg: \(Int(averageStepCount)) steps",
+                       subtitle: "Avg: \(Int(ChartHelper.averageValue(for: chartData))) steps",
                        context: .steps,
                        isNav: true
         ) {
@@ -41,16 +30,18 @@ struct StepBarChartView: View {
                 ChartEmptyView(systemImageName: "chart.bar", title: "No Data", description: "There is no step count data from the Health App.")
             } else {
                 Chart {
-                    if let selectedHealthMetric {
-                        RuleMark(x: .value("Selected Metric", selectedHealthMetric.date, unit: .day))
+                    if let selectedData {
+                        RuleMark(x: .value("Selected Metric", selectedData.date, unit: .day))
                             .foregroundStyle(Color.secondary.opacity(0.3))
                             .offset(y: -10)
                             .annotation(position: .top,
                                         spacing: 0,
-                                        overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) { annotationView  }
+                                        overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
+                                ChartAnnotationView(data: selectedData, context: .steps)
+                            }
                     }
                     
-                    RuleMark(y: .value("Average", averageStepCount))
+                    RuleMark(y: .value("Average", ChartHelper.averageValue(for: chartData)))
                         .foregroundStyle(.secondary)
                         .lineStyle(.init(lineWidth: 1, dash: [5]))
                     
@@ -60,7 +51,7 @@ struct StepBarChartView: View {
                             y: .value("Steps", steps.value)
                         )
                         .foregroundStyle(Color.pink.gradient)
-                        .opacity(rawSelectedDate == nil || steps.date == selectedHealthMetric?.date ? 1.0 : 0.3)
+                        .opacity(rawSelectedDate == nil || steps.date == selectedData?.date ? 1.0 : 0.3)
                     }
                 }
                 .frame(height: 150)
@@ -89,26 +80,9 @@ struct StepBarChartView: View {
         
     }
     
-    var annotationView: some View {
-        VStack(alignment: .leading) {
-            Text(selectedHealthMetric?.date ?? .now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day())
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
-            
-            Text(selectedHealthMetric?.value ?? 0, format: .number.precision(.fractionLength(0)))
-                .fontWeight(.heavy)
-                .foregroundStyle(.pink)
-        }
-        .padding(12)
-        .background {
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
-        }
-    }
     
 }
 
 #Preview {
-    StepBarChartView(selectedStat: .steps, chartData:[])
+    StepBarChartView(chartData:[])
 }

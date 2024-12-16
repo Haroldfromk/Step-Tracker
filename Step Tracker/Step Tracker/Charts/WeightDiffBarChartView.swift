@@ -13,32 +13,19 @@ struct WeightDiffBarChartView: View {
     @State private var rawSelectedDate: Date?
     @State private var selectedDay: Date?
     
-    var chartData: [WeekdayChartData]
+    var chartData: [DateValueChartData]
     
-    var selectedData: WeekdayChartData? {
-        guard let rawSelectedDate else { return nil }
-        return chartData.first {
-            Calendar.current.isDate(rawSelectedDate, inSameDayAs: $0.date)
-        }
+    var selectedData: DateValueChartData? {
+        ChartHelper.parseSelectedData(from: chartData, in: rawSelectedDate)
     }
     
     var body: some View {
-        VStack {
-            HStack {
-                VStack(alignment: .leading) {
-                    Label("Steps", systemImage: "figure")
-                        .font(.title3.bold())
-                        .foregroundStyle(.indigo)
-                    
-                    Text("Per Weekday (Last 28 Days)")
-                        .font(.caption)
-                }
-                
-                Spacer()
-            }
-            .foregroundStyle(.secondary)
-            .padding(.bottom, 12)
-            
+        ChartContainer(title: "Weight",
+                       symbol: "figure",
+                       subtitle: "Per Weekday (Last 28 Days)",
+                       context: .weight,
+                       isNav: false
+        ) {
             if chartData.isEmpty {
                 ChartEmptyView(systemImageName: "chart.bar", title: "No Data", description: "There is no weight data from the Health App.")
             } else {
@@ -50,7 +37,7 @@ struct WeightDiffBarChartView: View {
                             .annotation(position: .top,
                                         spacing: 0,
                                         overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
-                                annotationView
+                                ChartAnnotationView(data: selectedData, context: .weight)
                             }
                     }
                     
@@ -78,8 +65,6 @@ struct WeightDiffBarChartView: View {
                 }
             }
         }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
         .sensoryFeedback(.impact(flexibility: .solid, intensity: 10), trigger: selectedDay)
         .onChange(of: rawSelectedDate) { oldValue, newValue in
             if oldValue?.weekdayInt != newValue?.weekdayInt {
@@ -88,23 +73,23 @@ struct WeightDiffBarChartView: View {
         }
     }
     
-    var annotationView: some View {
-        VStack(alignment: .leading) {
-            Text(selectedData?.date ?? .now, format: .dateTime.weekday(.wide))
-                .font(.footnote.bold())
-                .foregroundStyle(.secondary)
-            
-            Text(selectedData?.value ?? 0, format: .number.sign(strategy: .always()).precision(.fractionLength(2)))
-                .fontWeight(.heavy)
-                .foregroundStyle((selectedData?.value ?? 0) > 0 ? Color.indigo : Color.mint)
-        }
-        .padding(12)
-        .background {
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color(.secondarySystemBackground))
-                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
-        }
-    }
+//    var annotationView: some View {
+//        VStack(alignment: .leading) {
+//            Text(selectedData?.date ?? .now, format: .dateTime.weekday(.wide))
+//                .font(.footnote.bold())
+//                .foregroundStyle(.secondary)
+//            
+//            Text(selectedData?.value ?? 0, format: .number.sign(strategy: .always()).precision(.fractionLength(2)))
+//                .fontWeight(.heavy)
+//                .foregroundStyle((selectedData?.value ?? 0) > 0 ? Color.indigo : Color.mint)
+//        }
+//        .padding(12)
+//        .background {
+//            RoundedRectangle(cornerRadius: 4)
+//                .fill(Color(.secondarySystemBackground))
+//                .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
+//        }
+//    }
     
     
 }

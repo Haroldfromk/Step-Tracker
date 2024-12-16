@@ -11,6 +11,7 @@ import Charts
 struct WeightDiffBarChartView: View {
     
     @State private var rawSelectedDate: Date?
+    @State private var selectedDay: Date?
     
     var chartData: [WeekdayChartData]
     
@@ -75,6 +76,12 @@ struct WeightDiffBarChartView: View {
         }
         .padding()
         .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
+        .sensoryFeedback(.impact(flexibility: .solid, intensity: 10), trigger: selectedDay)
+        .onChange(of: rawSelectedDate) { oldValue, newValue in
+            if oldValue?.weekdayInt != newValue?.weekdayInt {
+                selectedDay = newValue
+            }
+        }
     }
     
     var annotationView: some View {

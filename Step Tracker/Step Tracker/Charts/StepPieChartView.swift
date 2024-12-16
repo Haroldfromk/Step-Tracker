@@ -11,6 +11,7 @@ import Charts
 struct StepPieChartView: View {
     
     @State private var rawSelectedChartValue: Double? = 0
+    @State private var selectedDay: Date?
     
     var chartData: [WeekdayChartData] = []
     
@@ -77,10 +78,12 @@ struct StepPieChartView: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color(.secondarySystemBackground))
         )
-        .onChange(of: rawSelectedChartValue) { oldValue, newValue in // new
-//            print(chartData)
-//            print(newValue)
-            print(selectedWeekday?.date.weekdayTitle)
+        .sensoryFeedback(.impact(flexibility: .solid, intensity: 10), trigger: selectedDay)
+        .onChange(of: selectedWeekday) { oldValue, newValue in
+            guard let oldValue, let newValue else { return }
+            if oldValue.date.weekdayInt != newValue.date.weekdayInt {
+                selectedDay = newValue.date
+            }
         }
 
     }

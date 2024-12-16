@@ -11,6 +11,7 @@ import Charts
 struct StepBarChartView: View {
     
     @State private var rawSelectedDate: Date?
+    @State private var selectedDay: Date?
     
     var selectedStat: HealthMetricContext
     var chartData: [HealthMetric]
@@ -113,6 +114,12 @@ struct StepBarChartView: View {
             RoundedRectangle(cornerRadius: 4)
                 .fill(Color(.secondarySystemBackground))
                 .shadow(color: .secondary.opacity(0.3), radius: 2, x: 2, y: 2)
+        }
+        .sensoryFeedback(.impact(flexibility: .solid, intensity: 10), trigger: selectedDay)
+        .onChange(of: rawSelectedDate) { oldValue, newValue in
+            if oldValue?.weekdayInt != newValue?.weekdayInt {
+                selectedDay = newValue
+            }
         }
     }
     

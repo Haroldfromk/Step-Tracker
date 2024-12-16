@@ -58,20 +58,20 @@ struct ChartMath {
             weekdayChartData.append(.init(date: firstValue.date, value: avgSteps))
         }
         
-        for value in diffValues {
-            print("\(value.date), \(value.value)")
-        }
-        
-        for array in weekdayArray {
-            print("-----")
-            for day in array{
-                print("\(day.date.weekdayInt), \(day.value)")
-            }
-        }
-        
-        for data in weekdayChartData {
-            print("\(data.date.weekdayInt), \(data.value)")
-        }
+//        for value in diffValues {
+//            print("\(value.date), \(value.value)")
+//        }
+//        
+//        for array in weekdayArray {
+//            print("-----")
+//            for day in array{
+//                print("\(day.date.weekdayInt), \(day.value)")
+//            }
+//        }
+//        
+//        for data in weekdayChartData {
+//            print("\(data.date.weekdayInt), \(data.value)")
+//        }
         
         return weekdayChartData
     }

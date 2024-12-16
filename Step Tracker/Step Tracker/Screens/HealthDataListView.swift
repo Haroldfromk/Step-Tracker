@@ -14,6 +14,8 @@ struct HealthDataListView: View {
     @State private var isShowingAddData = false
     @State private var addDataDate: Date = .now
     @State private var valueToAdd: String = ""
+    @State private var isShowingAlert = false
+    @State private var writeError: STError = .noData
     
     @Binding var isShowingPermissionPriming: Bool
     
@@ -56,6 +58,19 @@ struct HealthDataListView: View {
                 }
             }
             .navigationTitle(metric.title)
+            .alert(isPresented: $isShowingAlert, error: writeError, actions: { writeError in
+                switch writeError {
+                case .authNotDetermined, .noData, .unableToCompleteRequest:
+                    EmptyView()
+                case .sharingDenied:
+                    Button("Settings") {
+                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!)
+                    }
+                    Button("Cancel", role: .cancel) { }
+                }
+            }, message: { writeError in
+                Text(writeError.failureReason)
+            })
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Add Data") {
@@ -67,10 +82,12 @@ struct HealthDataListView: View {
                                     isShowingAddData = false
                                 } catch STError.authNotDetermined {
                                     isShowingPermissionPriming = true
-                                } catch STError.sharingDenied(let quantity) {
-                                    print("sharing denied \(quantity)")
+                                } catch STError.sharingDenied(let quantityType) {
+                                    writeError = .sharingDenied(quantityType: quantityType)
+                                    isShowingAlert = true
                                 } catch {
-                                    print("data list error")
+                                    writeError = .unableToCompleteRequest
+                                    isShowingAlert = true
                                 }
                                 
                             } else {
@@ -81,10 +98,12 @@ struct HealthDataListView: View {
                                     isShowingAddData = false
                                 } catch STError.authNotDetermined {
                                     isShowingPermissionPriming = true
-                                } catch STError.sharingDenied(let quantity) {
-                                    print("sharing denied \(quantity)")
+                                } catch STError.sharingDenied(let quantityType) {
+                                    writeError = .sharingDenied(quantityType: quantityType)
+                                    isShowingAlert = true
                                 } catch {
-                                    print("data list error")
+                                    writeError = .unableToCompleteRequest
+                                    isShowingAlert = true
                                 }
                             }
                         }

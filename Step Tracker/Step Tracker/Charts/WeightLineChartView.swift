@@ -26,25 +26,19 @@ struct WeightLineChartView: View {
         chartData.map { $0.value }.min() ?? 0
     }
     var body: some View {
-        ChartContainer(title: "Weight",
-                       symbol: "figure",
-                       subtitle: "Avg: 180 lbs",
-                       context: .weight,
-                       isNav: true
-        ) {
+        let config = ChartContainerConfiguration(title: "Weight",
+                                                 symbol: "figure",
+                                                 subtitle: "Avg: 180 lbs",
+                                                 context: .weight,
+                                                 isNav: true)
+        
+        ChartContainer(config: config) {
             if chartData.isEmpty {
                 ChartEmptyView(systemImageName: "chart.xyaxis.line", title: "No Data", description: "There is no weight data from the Health App.")
             } else {
                 Chart {
                     if let selectedData {
-                        RuleMark(x: .value("Selected Metric", selectedData.date, unit: .day))
-                            .foregroundStyle(Color.secondary.opacity(0.3))
-                            .offset(y: -10)
-                            .annotation(position: .top,
-                                        spacing: 0,
-                                        overflowResolution: .init(x: .fit(to: .chart), y: .disabled)) {
-                                ChartAnnotationView(data: selectedData, context: .weight)
-                            }
+                        ChartAnnotationView(data: selectedData, context: .weight)
                     }
                     RuleMark(y: .value("Goal", 155))
                         .foregroundStyle(.mint)

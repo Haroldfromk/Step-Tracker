@@ -14,16 +14,11 @@ enum ChartType {
     case weightDiffBar
 }
 
-
-
-
 struct ChartContainer<Content: View>: View {
     
     let chartType: ChartType
     
     @ViewBuilder var content: () -> Content
-    
-    
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -31,6 +26,8 @@ struct ChartContainer<Content: View>: View {
                 navigationLinkView
             } else {
                 titleView
+                    .foregroundStyle(.secondary)
+                    .padding(.bottom, 12)
             }
             content()
         }
@@ -49,6 +46,8 @@ struct ChartContainer<Content: View>: View {
         }
         .foregroundStyle(.secondary)
         .padding(.bottom, 12)
+        .accessibilityHint("Tap for data in list view")
+        //.accessibilityRemoveTraits(.isButton)
     }
     
     var titleView: some View {
@@ -56,11 +55,14 @@ struct ChartContainer<Content: View>: View {
             Label(title, systemImage: symbol)
                 .font(.title3.bold())
                 .foregroundStyle(context == .steps ? .pink : .indigo)
-            //.accessibilityLabel("Step Bar Chart - Last 28 Days")
+            
             
             Text(subtitle)
                 .font(.caption)
         }
+        .accessibilityAddTraits(.isHeader)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityLabel)
     }
     
     var isNav: Bool {
@@ -118,6 +120,18 @@ struct ChartContainer<Content: View>: View {
         }
     }
     
+    var accessibilityLabel: String {
+        switch chartType {
+        case .stepBar(let average):
+            "Bar chart, step count, last 28 days, average steps per day: \(average) steps."
+        case .stepWeekdayPie:
+            "Pie chart, average steps per weekday."
+        case .weightLine(let average):
+            "Line chart, weight, average weight: \(average.formatted(.number.precision(.fractionLength(1)))) pounds, goal weight: 155 pounds"
+        case .weightDiffBar:
+            "Bar chart, average weight difference per weekday."
+        }
+    }
     
 }
 

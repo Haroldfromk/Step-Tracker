@@ -40,22 +40,27 @@ struct WeightLineChartView: View {
                 RuleMark(y: .value("Goal", 155))
                     .foregroundStyle(.mint)
                     .lineStyle(.init(lineWidth: 1, dash: [5]))
+                    .accessibilityHidden(true)
                 
-                ForEach(chartData) { weights in
-                    AreaMark(
-                        x: .value("Day", weights.date, unit: .day),
-                        yStart: .value("Value", weights.value),
-                        yEnd: .value("Min Value", minValue)
-                    )
-                    .foregroundStyle(Gradient(colors: [.blue.opacity(0.5), .clear]))
-                    .interpolationMethod(.catmullRom)
-                    
-                    LineMark(x: .value("Day", weights.date, unit: .day),
-                             y: .value("Value", weights.value)
-                    )
-                    .foregroundStyle(.indigo)
-                    .interpolationMethod(.catmullRom)
-                    .symbol(.circle)
+                ForEach(chartData) { weight in
+                    Plot {
+                        AreaMark(
+                            x: .value("Day", weight.date, unit: .day),
+                            yStart: .value("Value", weight.value),
+                            yEnd: .value("Min Value", minValue)
+                        )
+                        .foregroundStyle(Gradient(colors: [.blue.opacity(0.5), .clear]))
+                        .interpolationMethod(.catmullRom)
+                        
+                        LineMark(x: .value("Day", weight.date, unit: .day),
+                                 y: .value("Value", weight.value)
+                        )
+                        .foregroundStyle(.indigo)
+                        .interpolationMethod(.catmullRom)
+                        .symbol(.circle)
+                    }
+                    .accessibilityLabel(weight.date.accesibilityDate)
+                    .accessibilityValue("\(weight.value.formatted(.number.precision(.fractionLength(1)))) pounds")
                 }
             }
             .frame(height: 150)

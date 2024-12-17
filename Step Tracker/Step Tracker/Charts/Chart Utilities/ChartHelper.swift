@@ -1,17 +1,30 @@
 //
-//  ChartMath.swift
+//  ChartHelper.swift
 //  Step Tracker
 //
-//  Created by Dongik Song on 12/15/24.
+//  Created by Dongik Song on 12/17/24.
 //
 
 import Foundation
 import Algorithms
 
-struct ChartMath {
+struct ChartHelper {
+    
+    static func convert(data: [HealthMetric]) -> [DateValueChartData] {
+        data.map { .init(date: $0.date, value: $0.value) }
+    }
+    
+    
+    static func parseSelectedData(from data: [DateValueChartData], in selectedDate: Date?) -> DateValueChartData? {
+        guard let selectedDate else { return nil }
+        return data.first {
+            Calendar.current.isDate(selectedDate, inSameDayAs: $0.date)
+        }
+    }
     
     static func averageWeekdayCount(for metric: [HealthMetric]) -> [DateValueChartData] {
-        let sortedByWeekday = metric.sorted { $0.date.weekdayInt < $1.date.weekdayInt }
+        //let sortedByWeekday = metric.sorted { $0.date.weekdayInt < $1.date.weekdayInt }
+        let sortedByWeekday = metric.sorted(using: KeyPathComparator(\.date.weekdayInt))
         let weekdayArray = sortedByWeekday.chunked { $0.date.weekdayInt == $1.date.weekdayInt }
         
         var weekdayChartData: [DateValueChartData] = []
@@ -49,7 +62,7 @@ struct ChartMath {
             diffValues.append((date: date, value: diff))
         }
         
-        let sortedByWeekday = diffValues.sorted { $0.date.weekdayInt < $1.date.weekdayInt }
+        let sortedByWeekday = diffValues.sorted(using: KeyPathComparator(\.date.weekdayInt))
         let weekdayArray = sortedByWeekday.chunked { $0.date.weekdayInt == $1.date.weekdayInt }
         
         for array in weekdayArray {
@@ -63,14 +76,14 @@ struct ChartMath {
 //        for value in diffValues {
 //            print("\(value.date), \(value.value)")
 //        }
-//        
+//
 //        for array in weekdayArray {
 //            print("-----")
 //            for day in array{
 //                print("\(day.date.weekdayInt), \(day.value)")
 //            }
 //        }
-//        
+//
 //        for data in weekdayChartData {
 //            print("\(data.date.weekdayInt), \(data.value)")
 //        }
@@ -122,4 +135,3 @@ struct ChartMath {
     //        return weekdayChartData
     //    }
 }
-

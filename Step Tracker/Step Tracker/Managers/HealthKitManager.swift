@@ -149,10 +149,16 @@ import Observation
     }
     
     
-    /// Write weight value to HealthKit. Requires HealthKit write permission
+    /// Writes the weight value to HealthKit. Requires HealthKit write permission.
+    ///
+    /// This asynchronous function records a weight value into HealthKit.
+    /// Use `try await` when calling this function to handle its asynchronous behavior.
+    ///
     /// - Parameters:
-    ///   - date: Date for weight value
-    ///   - value: Weight value in pounds. Uses pounds as a Double for .bodyMass conversions
+    ///   - date: The date associated with the weight value.
+    ///   - value: The weight value in pounds. Represented as a `Double` for `.bodyMass` conversions.
+    /// - Throws: `HealthKitError` if the write operation fails.
+    /// - Note: Ensure HealthKit write permission is granted before calling this method.
     func addWeightData(for date: Date, value: Double) async throws {
         let status = store.authorizationStatus(for: HKQuantityType(.bodyMass))
         

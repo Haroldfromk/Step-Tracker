@@ -49,8 +49,10 @@ struct HealthKitPermissionPrimingView: View {
                                  trigger: isShowingHealthKitPermission) { result in
             switch result {
             case .success(_):
-                Task { @MainActor in
-                    dismiss()
+                Task {
+                    await MainActor.run {
+                        dismiss()
+                    }
                 }
             case .failure(_):
                 Task { @MainActor in

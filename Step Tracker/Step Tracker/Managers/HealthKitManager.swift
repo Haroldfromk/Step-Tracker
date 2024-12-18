@@ -9,15 +9,21 @@ import Foundation
 import HealthKit
 import Observation
 
-@Observable class HealthKitManager {
+@Observable
+@MainActor
+class HealthKitData {
+    var stepData: [HealthMetric] = []
+    var weightData: [HealthMetric] = []
+    var weightDiffData: [HealthMetric] = []
+}
+
+
+@Observable
+final class HealthKitManager: Sendable {
     
     let store = HKHealthStore()
     
     let types: Set = [HKQuantityType(.stepCount), HKQuantityType(.bodyMass)]
-    
-    var stepData: [HealthMetric] = []
-    var weightData: [HealthMetric] = []
-    var weightDiffData: [HealthMetric] = []
     
     func addSimulatorData() async {
         var mockSamples: [HKQuantitySample] = []

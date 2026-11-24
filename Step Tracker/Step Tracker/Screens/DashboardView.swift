@@ -24,10 +24,12 @@ struct DashboardView: View {
     
     @Environment(HealthKitManager.self) private var hkManager
     @Environment(HealthKitData.self) private var hkData
+    @Namespace var zoomTransition
     @State private var isShowingPermissionPrimingSheet = false
     @State private var selectedStat: HealthMetricContext = .steps
     @State private var isShowingAlert = false
     @State private var fetchError: STError = .noData
+    @State private var isShowingCoachView = false
     
     //var isSteps: Bool { selectedStat == .steps }
     var metricColor: Color {
@@ -67,7 +69,10 @@ struct DashboardView: View {
                 .padding()
             }
             .task {
-                //await hkManager.addSimulatorData()
+//                await hkManager.addSimulatorData()
+//                if #available(iOS 26, *) {
+//                        print(DataAnalyzer.shared.model.availability)
+//                    }
                 fetchHealthData()
             }
             .navigationTitle("Dashboard")
@@ -81,6 +86,7 @@ struct DashboardView: View {
             }, content: {
                 HealthKitPermissionPrimingView()
             })
+            .backportSheet(isPresented: $isShowingCoachView, namespace: zoomTransition)
             .alert(isPresented: $isShowingAlert, error: fetchError) { fetchError in
                 // action
                 
@@ -90,11 +96,13 @@ struct DashboardView: View {
             .toolbar {
                 if #available(iOS 26, *) {
                     if DataAnalyzer.shared.model.isAvailable {
-                        Button("Analyze Data", systemImage: "apple.intelligence") {
-                            Task {
-                                await DataAnalyzer.shared.analyzeHealthData()
+                        ToolbarItem {
+                            Button("Analyze Data", systemImage: "apple.intelligence") {
+                                isShowingCoachView.toggle()
+                                Task { await DataAnalyzer.shared.analyzeHealthData() }
                             }
                         }
+                        .matchedTransitionSource(id: "coachview", in: zoomTransition)
                     }
                 }
             }

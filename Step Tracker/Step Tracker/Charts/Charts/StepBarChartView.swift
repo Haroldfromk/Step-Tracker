@@ -43,6 +43,7 @@ struct StepBarChartView: View {
                             x: .value("Date", steps.date, unit: .day),
                             y: .value("Steps", steps.value)
                         )
+                        .cornerRadius(3)
                         .foregroundStyle(Color.pink.gradient)
                         .opacity(rawSelectedDate == nil || steps.date == selectedData?.date ? 1.0 : 0.3)
                     }

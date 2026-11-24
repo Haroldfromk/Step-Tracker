@@ -29,7 +29,18 @@ struct DashboardView: View {
     @State private var isShowingAlert = false
     @State private var fetchError: STError = .noData
     
-    var isSteps: Bool { selectedStat == .steps }
+    //var isSteps: Bool { selectedStat == .steps }
+    var metricColor: Color {
+        selectedStat == .steps ? .pink : .indigo
+    }
+    
+    var navbarTint: Color {
+        if #available(iOS 26, *) {
+            return .primary
+        } else {
+            return metricColor
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -53,12 +64,15 @@ struct DashboardView: View {
                         WeightDiffBarChartView(chartData: ChartHelper.averageDailyWeightDiffs(for: hkData.weightDiffData))
                     }
                 }
+                .padding()
             }
-            .padding()
             .task {
+                //await hkManager.addSimulatorData()
                 fetchHealthData()
             }
             .navigationTitle("Dashboard")
+            .toolbarTitleDisplayMode(.inlineLarge)
+            .background(LinearGradient(colors: [metricColor.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
             .navigationDestination(for: HealthMetricContext.self) { metric in
                 HealthDataListView(isShowingPermissionPriming: $isShowingPermissionPrimingSheet, metric: metric)
             }
@@ -76,12 +90,13 @@ struct DashboardView: View {
 
             
         }
-        .tint(selectedStat == .steps ? .pink : .indigo)
+        .tint(navbarTint)
     }
     
     private func fetchHealthData() {
         Task {
             do {
+                //await hkManager.addSimulatorData()
                 async let steps = hkManager.fetchStepCount()
                 async let weightsForLineChart = hkManager.fetchWeights(daysBack: 28)
                 async let weightsForDiffBarChart = hkManager.fetchWeights(daysBack: 29)
@@ -106,4 +121,5 @@ struct DashboardView: View {
 #Preview {
     DashboardView()
         .environment(HealthKitManager())
+        .environment(HealthKitData())
 }

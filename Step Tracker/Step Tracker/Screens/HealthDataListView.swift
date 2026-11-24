@@ -11,6 +11,7 @@ struct HealthDataListView: View {
     
     @Environment(HealthKitManager.self) private var hkManager
     @Environment(HealthKitData.self) private var hkData
+    @Namespace var zoomTransition
     @State private var isShowingAddData = false
     @State private var addDataDate: Date = .now
     @State private var valueToAdd: String = ""
@@ -25,6 +26,10 @@ struct HealthDataListView: View {
         metric == .steps ? hkData.stepData : hkData.weightData
     }
     
+    var metricColor: Color {
+        metric == .steps ? .pink : .indigo
+    }
+    
     var body: some View {
         List(listData.reversed()) { data in
             LabeledContent {
@@ -33,15 +38,44 @@ struct HealthDataListView: View {
                 Text(data.date, format: .dateTime.month(.wide).day().year())
                     .accessibilityLabel(data.date.accesibilityDate)
             }
+            .listRowBackground(Color(.secondarySystemBackground).opacity(0.35))
             .accessibilityElement(children: .combine)
         }
         .navigationTitle(metric.title)
+        .scrollContentBackground(.hidden)
+        .background(LinearGradient(colors: [metricColor.opacity(0.25), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
         .sheet(isPresented: $isShowingAddData) {
-            addDataView
+            if #available(iOS 26, *) {
+                addDataView
+                    .presentationDetents([.fraction(0.4)])
+                    .scrollContentBackground(.hidden)
+                    .navigationTransition(.zoom(sourceID: "addData", in: zoomTransition))
+            } else {
+                addDataView
+                    .presentationDetents([.fraction(0.4)])
+            }
         }
+        .overlay(content: {
+            if listData.isEmpty {
+                ContentUnavailableView("No \(metric.title) to Display", systemImage: metric == .steps ? "figure.walk" : "figure")
+            }
+        })
         .toolbar {
-            Button("Add Data", systemImage: "plus") {
-                isShowingAddData = true
+            if #available(iOS 26, *) {
+                ToolbarItem {
+                    Button("Add Data", systemImage: "plus") {
+                        isShowingAddData = true
+                    }
+                    .buttonStyle(.glassProminent)
+                    .tint(metricColor)
+                }
+                .matchedTransitionSource(id: "addData", in: zoomTransition)
+            } else {
+                ToolbarItem {
+                    Button("Add Data", systemImage: "plus") {
+                        isShowingAddData = true
+                    }
+                }
             }
         }
     }
@@ -58,6 +92,7 @@ struct HealthDataListView: View {
                 }
             }
             .navigationTitle(metric.title)
+            .navigationBarTitleDisplayMode(.inline)
             .alert(isPresented: $isShowingAlert, error: writeError, actions: { writeError in
                 switch writeError {
                 case .authNotDetermined, .noData, .unableToCompleteRequest, .invalidValue:
@@ -73,14 +108,27 @@ struct HealthDataListView: View {
             })
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Add Data") {
-                        addDataToHealthKit()
+                    if #available(iOS 26, *){
+                        Button(role: .confirm) {
+                            addDataToHealthKit()
+                        }
+                        .tint(metricColor)
+                    } else {
+                        Button("Add Data") {
+                            addDataToHealthKit()
+                        }
                     }
                 }
                 
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Dismiss") {
-                        isShowingAddData = false
+                    if #available(iOS 26, *) {
+                        Button(role: .close) {
+                            isShowingAddData = false
+                        }
+                    } else {
+                        Button("Dismiss") {
+                            isShowingAddData = false
+                        }
                     }
                 }
             }

@@ -19,7 +19,7 @@ struct HealthKitPermissionPrimingView: View {
     
     You can also add new step or weight data to Apple Health from this app. Your data is private and secured.
     """
-
+    
     var body: some View {
         VStack(spacing: 130) {
             VStack(alignment: .leading, spacing: 10) {
@@ -28,19 +28,33 @@ struct HealthKitPermissionPrimingView: View {
                     .frame(width: 90, height: 90)
                     .shadow(color: .gray.opacity(0.3), radius: 16)
                     .padding(.bottom, 12)
-
+                
                 Text("Apple Health Integration")
                     .font(.title2).bold()
-
+                
                 Text(description)
                     .foregroundStyle(.secondary)
             }
-
+            
             Button("Connect Apple Health") {
                 isShowingHealthKitPermission = true
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.pink)
+            .prominentButton(color: .pink)
+            
+            //            if #available(iOS 26, *) {
+            //                Button("Connect Apple Health") {
+            //                    isShowingHealthKitPermission = true
+            //                }
+            //                .buttonStyle(.glassProminent)
+            //                .tint(.pink)
+            //            } else {
+            //                Button("Connect Apple Health") {
+            //                    isShowingHealthKitPermission = true
+            //                }
+            //                .buttonStyle(.borderedProminent)
+            //                .tint(.pink)
+            //            }
+            
         }
         .padding(30)
         .healthDataAccessRequest(store: hkManager.store,

@@ -37,10 +37,12 @@ struct WeightLineChartView: View {
                 if let selectedData {
                     ChartAnnotationView(data: selectedData, context: .weight)
                 }
-                RuleMark(y: .value("Goal", 155))
-                    .foregroundStyle(.mint)
-                    .lineStyle(.init(lineWidth: 1, dash: [5]))
-                    .accessibilityHidden(true)
+                if !chartData.isEmpty {
+                    RuleMark(y: .value("Goal", 155))
+                        .foregroundStyle(.mint)
+                        .lineStyle(.init(lineWidth: 1, dash: [5]))
+                        .accessibilityHidden(true)
+                }
                 
                 ForEach(chartData) { weight in
                     Plot {
